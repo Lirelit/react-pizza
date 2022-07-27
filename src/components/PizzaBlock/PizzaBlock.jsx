@@ -16,6 +16,7 @@ export default function PizzaBlock(props) {
     <div className='pizza-block'>
       <img className='pizza-block__image' src={imageUrl} alt='Pizza' />
       <h4 className='pizza-block__title'>{title}</h4>
+      <div className="pizza-block__content-wrap">
       <div className='pizza-block__selector'>
         <ul>
           {types.map((type) => (
@@ -63,6 +64,7 @@ export default function PizzaBlock(props) {
           <span>Добавить</span>
           <i>{count}</i>
         </button>
+      </div>
       </div>
     </div>
   );
