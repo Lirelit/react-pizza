@@ -1,27 +1,51 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { setSort, setSortOrder } from '../redux/slices/filterSlice'
 
-export default function Sort({ value, onChangeSort, sortOrder, onChangeOrderSort }) {
-    const list = [{name: 'популярности', sort: 'rating'},
-    {name: 'цене', sort: 'price'},
-    {name: 'алфавиту', sort: 'title'}]
+export default function Sort() {
+    const dispatch = useDispatch()
+    const sort = useSelector((state) => state.filter.sort)
+    const sortOrder = useSelector((state) => state.filter.sortOrder)
+
     const [open, setOpen] = useState(false)
-    const listName = value.name
+    const sortRef = useRef()
+    const list = [
+        { name: 'популярности', sort: 'rating' },
+        { name: 'цене', sort: 'price' },
+        { name: 'алфавиту', sort: 'title' },
+    ]
+    const listName = sort.name
 
-    const onClickItemList = (i) => {
-      setOpen(false)
-      onChangeSort(i)
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.path.includes(sortRef.current)) {
+                setOpen(false)
+            }
+        }
+        document.body.addEventListener('click', handleClickOutside)
+
+        return () => {
+            document.body.removeEventListener('click', handleClickOutside)
+        }
+    }, [])
+
+    const onClickItemList = (obj) => {
+        dispatch(setSort(obj))
+        setOpen(false)
     }
 
     const handleSortOrder = () => {
-      sortOrder == 'asc' ? onChangeOrderSort('desc') : onChangeOrderSort('asc')
-      setOpen(false)
+        sortOrder == 'asc'
+            ? dispatch(setSortOrder('desc'))
+            : dispatch(setSortOrder('asc'))
+        setOpen(false)
     }
 
     return (
-        <div className='sort'>
-            <div  className='sort__label'>
+        <div className='sort' ref={sortRef}>
+            <div className='sort__label'>
                 <svg
-                    cursor="pointer"
+                    cursor='pointer'
                     onClick={handleSortOrder}
                     className={sortOrder === 'desc' ? 'rotate' : ''}
                     width='10'
@@ -45,7 +69,9 @@ export default function Sort({ value, onChangeSort, sortOrder, onChangeOrderSort
                             <li
                                 key={i}
                                 onClick={() => onClickItemList(obj)}
-                                className={value.sort === obj.sort ? 'active' : ''}
+                                className={
+                                    sort.sort === obj.sort ? 'active' : ''
+                                }
                             >
                                 {obj.name}
                             </li>

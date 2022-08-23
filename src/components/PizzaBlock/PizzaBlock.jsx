@@ -1,16 +1,29 @@
 import React, { useState } from "react";
+import {useDispatch ,useSelector} from 'react-redux'
+import { addItem } from "../../redux/slices/cartSlice";
 
 export default function PizzaBlock(props) {
-  const { title, price, pizzas, imageUrl, sizes, types } = props;
-  const [activeSIze, setActiveSIze] = useState(0);
+  const {id, title, price, pizzas, imageUrl, sizes, types } = props;
+  const dispatch = useDispatch()
+  const cartItem = useSelector( state => state.cart.items.find(obj => obj.id === id))
+  const [activeSize, setActiveSize] = useState(0);
   const [activeType, setActiveType] = useState(0);
   const TypeNames = ["тонкое", "традиционное"];
 
-  const [count, setCount] = useState(0);
+  const addedCount = cartItem ? cartItem.count : 0
+  
 
-  const addCount = () => {
-    setCount(count + 1);
-  };
+  const onClickAdd = () => {
+    const item = {
+      id,
+      title,
+      price,
+      imageUrl,
+      type: TypeNames[activeType],
+      size: sizes[activeSize]
+    }
+    dispatch(addItem(item))
+  }
 
   return (
     <div className='pizza-block'>
@@ -34,8 +47,8 @@ export default function PizzaBlock(props) {
             return (
               <li
                 key={i}
-                onClick={() => setActiveSIze(i)}
-                className={activeSIze === i ? "active" : ""}
+                onClick={() => setActiveSize(i)}
+                className={activeSize === i ? "active" : ""}
               >
                 {size} см
               </li>
@@ -46,7 +59,7 @@ export default function PizzaBlock(props) {
       <div className='pizza-block__bottom'>
         <div className='pizza-block__price'>от {price} ₽</div>
         <button
-          onClick={addCount}
+          onClick={onClickAdd}
           className='button button--outline button--add'
         >
           <svg
@@ -62,7 +75,7 @@ export default function PizzaBlock(props) {
             />
           </svg>
           <span>Добавить</span>
-          <i>{count}</i>
+          { addedCount>0 && <i>{addedCount}</i>}
         </button>
       </div>
       </div>

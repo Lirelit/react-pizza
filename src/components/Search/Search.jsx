@@ -1,9 +1,35 @@
-import React, { useContext } from 'react'
+import debounce from 'lodash.debounce'
+import React, { useCallback, useContext, useRef, useState } from 'react'
 import { SearchContext } from '../../App'
 import styles from './style.module.scss'
 
+const deb = debounce(() => {
+    console.log('dratyti')
+}, 2000)
+
 export default function Search() {
-    const {searchValue, setSearchValue} = useContext(SearchContext)
+    const [value, setValue] = useState('')
+    const { setSearchValue } = useContext(SearchContext)
+
+    const inputRef = useRef()
+
+    const updateSearchValue = useCallback(
+        debounce((str) => {
+            setSearchValue(str)
+        }, 800),
+        []
+    )
+
+    const onChangeInput = (e) => {
+        setValue(e.target.value)
+        updateSearchValue(e.target.value)
+    }
+
+    const onClickClear = () => {
+        setValue('')
+        setSearchValue('')
+        inputRef.current.focus()
+    }
 
     return (
         <div className={styles.root}>
@@ -48,14 +74,15 @@ export default function Search() {
                 </g>
             </svg>
             <input
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
+                ref={inputRef}
+                value={value}
+                onChange={onChangeInput}
                 placeholder='Поиск пиццы'
                 className={styles.input}
             />
-            {searchValue && (
+            {value && (
                 <svg
-                    onClick={()=> setSearchValue('')}
+                    onClick={onClickClear}
                     className={styles.clear}
                     height='22px'
                     viewBox='0 0 512 512'
